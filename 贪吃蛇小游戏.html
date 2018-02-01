@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        body{
+            padding-left: 360px;
+            padding-top: 150px;
+        }
+    </style>
+    <script>
+
+        //开始定义对象
+        var map;
+        var food;
+        var snack;
+        var sum;
+        var timer;
+        //创建地图
+        function Map() {
+            //封装该对象的相关属性
+            this.width = "800px";
+            this.height = "400px";
+            this.color = "black";
+            this.position = "absolute";
+            this._map = null;
+            //封装对象的方法
+            this.show = function () {
+                //地图对象
+                if (this._map == null) {
+                    //开始创建
+                    this._map = document.createElement("div");
+                    this._map.style.width = this.width;
+                    this._map.style.height = this.height;
+                    this._map.style.position = this.position;
+                    this._map.style.backgroundColor = this.color;
+                    document.getElementsByTagName("body")[0].appendChild(this._map);
+                }
+            }
+        }
+
+
+        //创建食物
+        function Food() {
+            //封装食物的相关属性
+            this.width = 20;
+            this.height = 20;
+            this.color = "yellow";
+            this.position = "absolute";
+            this.border = "1px solid white";
+            //坐标
+            this.x;
+            this.y;
+            this._food = null;
+            //创建食物对象
+            this.show = function () {
+                if (this._food == null) {
+                    this._food = document.createElement("div");
+                    this._food.style.width = this.width + "px";
+                    this._food.style.height = this.height + "px";
+                    this._food.style.border = this.border;
+                    this._food.style.position = this.position;
+                    this._food.style.backgroundColor = this.color;
+                    //添加给地图
+                    map._map.appendChild(this._food);
+                }
+                //设置食物的随机位置
+                this.x = Math.floor(Math.random() * 40);
+                this.y = Math.floor(Math.random() * 20);
+                //设置食物的坐标
+                this._food.style.left = this.x * this.width + "px";
+                this._food.style.top = this.y * this.height + "px";
+            }
+        }
+
+
+        //创建蛇
+        function Snack() {
+            //封装蛇的属性
+            this.width = 20;
+            this.height = 20;
+            this.border = "1px solid white";
+            this.position = "absolute";
+            //设置属性   方向属性
+            this.direct = "right";
+            //创建蛇  本身的属性
+            this.snackbody = [[3, 2, "red", null], [2, 2, "orange", null], [1, 2, "orange", null]];
+            this.direction = function (code) {
+                switch (code) {
+                    case 37:
+                        this.direct = "left";
+                        break;
+                    case 38:
+                        this.direct = "up";
+                        break;
+                    case 39:
+                        this.direct = "right";
+                        break;
+                    case 40:
+                        this.direct = "down";
+                        break;
+                }
+            };
+
+
+            //蛇移动
+            this.move = function () {
+                //开始动   将蛇的自身移动属性传递给下一节
+                var length = this.snackbody.length - 1;
+                for (var i = length; i > 0; i--) {
+                    this.snackbody[i][0] = this.snackbody[i - 1][0];
+                    this.snackbody[i][1] = this.snackbody[i - 1][1];
+                }
+                /*开始动*/
+                switch (this.direct) {
+                    case "right":
+                        this.snackbody[0][0] = this.snackbody[0][0] + 1;
+                        break;
+                    case "left":
+                        this.snackbody[0][0] = this.snackbody[0][0] - 1;
+                        break;
+                    case "up":
+                        this.snackbody[0][1] = this.snackbody[0][1] - 1;
+                        break;
+                    case "down":
+                        this.snackbody[0][1] = this.snackbody[0][1] + 1;
+                        break;
+                }
+                //判断蛇  吃掉食物
+                if (this.snackbody[0][0] == food.x && this.snackbody[0][1] == food.y) {
+                    //食物消失
+                    //蛇添加一段
+                    this.snackbody.push([food.x, food.y, "orange", null]);
+                    food.show();
+                }
+                //判断蛇撞死
+                if (this.snackbody[0][0] < 0 || this.snackbody[0][0] >= 40 || this.snackbody[0][1] < 0 || this.snackbody[0][1] >= 20) {
+                    //停止计时器
+                    clearInterval(timer);
+                    alert("撞死啦！");
+                    return;
+                }
+                //判断蛇不能撞自己    分数   死了之后继续开始    速度调节   或者是说  蛇右边出去左边进来
+                //调用show方法
+                this.show();
+            };
+
+
+            //显示蛇
+            this.show = function () {
+                for (var i = 0; i < this.snackbody.length; i++) {
+                    if (this.snackbody[i][3] == null) {
+                        this.snackbody[i][3] = document.createElement("div");
+                        this.snackbody[i][3].style.width = this.width + "px";
+                        this.snackbody[i][3].style.height = this.height + "px";
+                        this.snackbody[i][3].style.border = this.border;
+                        this.snackbody[i][3].style.position = this.position;
+                        this.snackbody[i][3].style.backgroundColor = this.snackbody[i][2];
+                        //蛇添加地图
+                        map._map.appendChild(this.snackbody[i][3]);
+                    }
+                    this.snackbody[i][3].style.left = this.snackbody[i][0] * this.width + "px";
+                    this.snackbody[i][3].style.top = this.snackbody[i][1] * this.height + "px";
+                }
+            }
+        }
+
+
+        window.onload = function () {
+            //实例化地图对象   进行创建
+            map = new Map();
+            map.show();
+            //实例化食物
+            food = new Food();
+            food.show();
+            //实例化蛇的对象
+            snack = new Snack();
+            snack.show();
+            //添加计时器
+            timer = setInterval("snack.move()", 100);
+            //按键事件
+            document.onkeydown = function () {
+                var code = event.keyCode;
+                if (code == 37 && snack.direct == "right") {
+                    snack.direction(39);
+                }
+                else if (code == 39 && snack.direct == "left") {
+                    snack.direction(37);
+                }
+                else if (code == 38 && snack.direct == "down") {
+                    snack.direction(40);
+                }
+                else if (code == 40 && snack.direct == "up") {
+                    snack.direction(38);
+                }
+                else {
+                    snack.direction(code);
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>defineProperty</title>
+</head>
+<body>
+    <input type="text" id="inputText">
+    <span id="spanText"></span>
+</body>
+<script>
+/*    var obj = {};
+    Object.defineProperty(obj,'inputText',{
+        value:'jack'
+    });
+    document.getElementById('inputText').addEventListener('keyup',function (event) {
+        document.getElementById('spanText').innerText = event.target.value;
+    });*/
+    var obj = {};
+    Object.defineProperty(obj,'text',{
+        get:function () {
+            console.log('get init');
+        },
+        set:function (val) {
+            console.log('set init');
+            document.getElementById('inputText').val = val;
+            document.getElementById('spanText').innerText = val;
+        }
+    });
+    document.getElementById('inputText').addEventListener('keyup',function (event) {
+        obj.text = event.target.value;
+        console.log(obj.text);
+    });
+
+</script>
+</html>
